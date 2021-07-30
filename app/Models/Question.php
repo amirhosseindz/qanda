@@ -23,7 +23,7 @@ class Question extends Model
 
     /**
      * @param string $question
-     * @param string $answer Correct answer to this question
+     * @param string $answer    Correct answer to this question
      * @param int    $createdBy User id of who is creating this question, since we don't have a User model we use "1"
      *                          as user id by default
      *
@@ -34,9 +34,9 @@ class Question extends Model
         $question = trim($question);
         $answer   = trim($answer);
 
-        Assert::notEmpty($question);
-        Assert::notEmpty($answer);
-        Assert::greaterThan($createdBy, 0);
+        Assert::notEmpty($question, 'Invalid Question');
+        Assert::notEmpty($answer, 'Invalid Answer');
+        Assert::greaterThan($createdBy, 0, 'Invalid User Id');
 
         return self::create([
             'question'   => $question,
