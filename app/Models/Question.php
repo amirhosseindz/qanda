@@ -21,6 +21,11 @@ class Question extends Model
         'created_by',
     ];
 
+    public function answers()
+    {
+        return $this->hasMany(Answer::class);
+    }
+
     /**
      * @param string $question
      * @param string $answer    Correct answer to this question
