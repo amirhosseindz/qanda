@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PracticeStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Webmozart\Assert\Assert;
@@ -58,5 +59,14 @@ class Question extends Model
             'answer'     => $answer,
             'created_by' => $createdBy
         ]);
+    }
+
+    public function getPracticeStatus(int $userId = 1): PracticeStatus
+    {
+        if ($answer = $this->findAnswer($userId)) {
+            return new PracticeStatus($answer->status);
+        }
+
+        return PracticeStatus::NotAnswered();
     }
 }
