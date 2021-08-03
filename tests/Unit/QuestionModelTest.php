@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use App\Enums\AnswerStatus;
+use App\Models\Answer;
 use App\Models\Question;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -64,5 +66,25 @@ class QuestionModelTest extends TestCase
         $this->assertInstanceOf(InvalidArgumentException::class, $exception);
         $this->assertEquals('Invalid User Id', $exception->getMessage());
         $this->assertNull($question);
+    }
+
+    public function testFindAnswer(): void
+    {
+        $question = Question::store('how r u?', 'ok');
+
+        Answer::storeOrUpdate('ok', AnswerStatus::Correct(), $question);
+
+        $answer = $question->findAnswer();
+
+        $this->assertInstanceOf(Answer::class, $answer);
+        $this->assertEquals($question->id, $answer->question_id);
+    }
+
+    public function testFindAnswerWhenThereIsNoOne(): void
+    {
+        $question = Question::store('how r u?', 'ok');
+        $answer   = $question->findAnswer();
+
+        $this->assertNull($answer);
     }
 }

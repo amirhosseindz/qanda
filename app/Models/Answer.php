@@ -33,9 +33,15 @@ class Answer extends Model
      *
      * @return static
      */
-    public static function store(string $answer, AnswerStatus $status, Question $question, int $userId = 1): self
+    public static function storeOrUpdate(string $answer, AnswerStatus $status, Question $question, int $userId = 1): self
     {
         Assert::greaterThan($userId, 0, 'Invalid User Id');
+
+        if ($oldAnswer = $question->findAnswer($userId)) {
+            $oldAnswer->updateAnswer($answer, $status);
+
+            return $oldAnswer;
+        }
 
         return self::create([
             'user_id'     => $userId,
@@ -45,12 +51,14 @@ class Answer extends Model
         ]);
     }
 
-    public function updateAnswer(string $answer, AnswerStatus $status): bool
+    public function updateAnswer(string $answer, AnswerStatus $status): void
     {
         $this->answer = self::getValidatedAnswer($answer);
         $this->status = $status->value;
 
-        return $this->save();
+        if (! $this->save()) {
+            throw new \RuntimeException('Could not update the answer in the database successfully');
+        }
     }
 
     private static function getValidatedAnswer(string $answer): string

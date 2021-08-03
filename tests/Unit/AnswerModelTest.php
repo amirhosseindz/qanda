@@ -16,7 +16,7 @@ class AnswerModelTest extends TestCase
     public function testSuccessStore(): void
     {
         $q      = Question::store('how r u?', 'ok');
-        $answer = Answer::store('nok', AnswerStatus::Incorrect(), $q);
+        $answer = Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q);
 
         $this->assertInstanceOf(Answer::class, $answer);
         $this->assertTrue($answer->exists);
@@ -28,7 +28,7 @@ class AnswerModelTest extends TestCase
     public function testSuccessUpdateAnswer(): void
     {
         $q      = Question::store('how r u?', 'ok');
-        $answer = Answer::store('nok', AnswerStatus::Incorrect(), $q);
+        $answer = Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q);
 
         $answer->updateAnswer('ok', AnswerStatus::Correct());
 
@@ -43,7 +43,7 @@ class AnswerModelTest extends TestCase
         $answer    = null;
 
         try {
-            $answer = Answer::store('   ', AnswerStatus::Incorrect(), $q);
+            $answer = Answer::storeOrUpdate('   ', AnswerStatus::Incorrect(), $q);
         } catch (\Throwable $exception) {
         }
 
@@ -59,7 +59,7 @@ class AnswerModelTest extends TestCase
         $answer    = null;
 
         try {
-            $answer = Answer::store('nok', AnswerStatus::Incorrect(), $q, -1);
+            $answer = Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q, -1);
         } catch (\Throwable $exception) {
         }
 
@@ -71,7 +71,7 @@ class AnswerModelTest extends TestCase
     public function testUpdateAnswerEmptyAnswer(): void
     {
         $q         = Question::store('how r u?', 'ok');
-        $answer    = Answer::store('nok', AnswerStatus::Incorrect(), $q);
+        $answer    = Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q);
         $exception = null;
 
         try {
@@ -83,5 +83,21 @@ class AnswerModelTest extends TestCase
         $this->assertEquals('Invalid Answer', $exception->getMessage());
         $this->assertEquals('nok', $answer->answer);
         $this->assertEquals(AnswerStatus::Incorrect, $answer->status);
+    }
+
+    public function testStoreAlwaysOneAnswerForAUser(): void
+    {
+        $q = Question::store('how r u?', 'ok');
+
+        Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q);
+        Answer::storeOrUpdate('ok', AnswerStatus::Correct(), $q);
+
+        $this->assertEquals(1, $q->answers()->count());
+
+        $answer = $q->findAnswer();
+
+        $this->assertInstanceOf(Answer::class, $answer);
+        $this->assertEquals('ok', $answer->answer);
+        $this->assertEquals(AnswerStatus::Correct, $answer->status);
     }
 }

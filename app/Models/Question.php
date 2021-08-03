@@ -26,6 +26,16 @@ class Question extends Model
         return $this->hasMany(Answer::class);
     }
 
+    public function findAnswer(int $userId = 1): ?Answer
+    {
+        $answers = $this->answers()->where('user_id', $userId)->get();
+        if ($answers->count() > 1) {
+            throw new \RuntimeException('Question can not has more than one answer for a single user');
+        }
+
+        return $answers->first();
+    }
+
     /**
      * @param string $question
      * @param string $answer    Correct answer to this question
