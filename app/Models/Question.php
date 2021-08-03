@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AnswerStatus;
 use App\Enums\PracticeStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -68,5 +69,10 @@ class Question extends Model
         }
 
         return PracticeStatus::NotAnswered();
+    }
+
+    public function getAnswerStatus(string $answer): AnswerStatus
+    {
+        return $answer === $this->answer ? AnswerStatus::Correct() : AnswerStatus::Incorrect();
     }
 }

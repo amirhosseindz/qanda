@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\AnswerStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Webmozart\Assert\Assert;
@@ -24,46 +23,52 @@ class Answer extends Model
         'status'
     ];
 
+    public function question()
+    {
+        return $this->belongsTo(Question::class);
+    }
+
     public function scopeUser($query, int $userId)
     {
         return $query->where('user_id', $userId);
     }
 
     /**
-     * @param string       $answer
-     * @param AnswerStatus $status
-     * @param Question     $question
-     * @param int          $userId User id of whom this answer belongs to, since we don't have a User model we use "1"
-     *                             as user id by default
+     * @param string   $answer
+     * @param Question $question
+     * @param int      $userId User id of whom this answer belongs to, since we don't have a User model we use "1"
+     *                         as user id by default
      *
      * @return static
      */
-    public static function storeOrUpdate(string $answer, AnswerStatus $status, Question $question, int $userId = 1): self
+    public static function storeOrUpdate(string $answer, Question $question, int $userId = 1): self
     {
+        if ($oldAnswer = $question->findAnswer($userId)) {
+            return $oldAnswer->updateAnswer($answer);
+        }
+
         Assert::greaterThan($userId, 0, 'Invalid User Id');
 
-        if ($oldAnswer = $question->findAnswer($userId)) {
-            $oldAnswer->updateAnswer($answer, $status);
-
-            return $oldAnswer;
-        }
+        $answer = self::getValidatedAnswer($answer);
 
         return self::create([
             'user_id'     => $userId,
             'question_id' => $question->id,
-            'answer'      => self::getValidatedAnswer($answer),
-            'status'      => $status->value
+            'answer'      => $answer,
+            'status'      => $question->getAnswerStatus($answer)->value
         ]);
     }
 
-    public function updateAnswer(string $answer, AnswerStatus $status): void
+    public function updateAnswer(string $answer): self
     {
         $this->answer = self::getValidatedAnswer($answer);
-        $this->status = $status->value;
+        $this->status = $this->question->getAnswerStatus($this->answer)->value;
 
         if (! $this->save()) {
             throw new \RuntimeException('Could not update the answer in the database successfully');
         }
+
+        return $this;
     }
 
     public static function erase(int $userId = 1): void

@@ -16,7 +16,7 @@ class AnswerModelTest extends TestCase
     public function testSuccessStore(): void
     {
         $q      = Question::store('how r u?', 'ok');
-        $answer = Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q);
+        $answer = Answer::storeOrUpdate('nok', $q);
 
         $this->assertInstanceOf(Answer::class, $answer);
         $this->assertTrue($answer->exists);
@@ -28,7 +28,7 @@ class AnswerModelTest extends TestCase
     public function testSuccessUpdateAnswer(): void
     {
         $q      = Question::store('how r u?', 'ok');
-        $answer = Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q);
+        $answer = Answer::storeOrUpdate('nok', $q);
 
         $answer->updateAnswer('ok', AnswerStatus::Correct());
 
@@ -43,7 +43,7 @@ class AnswerModelTest extends TestCase
         $answer    = null;
 
         try {
-            $answer = Answer::storeOrUpdate('   ', AnswerStatus::Incorrect(), $q);
+            $answer = Answer::storeOrUpdate('   ', $q);
         } catch (\Throwable $exception) {
         }
 
@@ -59,7 +59,7 @@ class AnswerModelTest extends TestCase
         $answer    = null;
 
         try {
-            $answer = Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q, -1);
+            $answer = Answer::storeOrUpdate('nok', $q, -1);
         } catch (\Throwable $exception) {
         }
 
@@ -71,7 +71,7 @@ class AnswerModelTest extends TestCase
     public function testUpdateAnswerEmptyAnswer(): void
     {
         $q         = Question::store('how r u?', 'ok');
-        $answer    = Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q);
+        $answer    = Answer::storeOrUpdate('nok', $q);
         $exception = null;
 
         try {
@@ -89,8 +89,8 @@ class AnswerModelTest extends TestCase
     {
         $q = Question::store('how r u?', 'ok');
 
-        Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q);
-        Answer::storeOrUpdate('ok', AnswerStatus::Correct(), $q);
+        Answer::storeOrUpdate('nok', $q);
+        Answer::storeOrUpdate('ok', $q);
 
         $this->assertEquals(1, $q->answers()->count());
 
@@ -105,7 +105,7 @@ class AnswerModelTest extends TestCase
     {
         $q = Question::store('how r u?', 'ok');
 
-        Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q);
+        Answer::storeOrUpdate('nok', $q);
 
         $this->assertEquals(1, $q->answers()->count());
 

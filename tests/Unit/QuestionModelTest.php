@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Enums\AnswerStatus;
+use App\Enums\PracticeStatus;
 use App\Models\Answer;
 use App\Models\Question;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -72,7 +72,7 @@ class QuestionModelTest extends TestCase
     {
         $question = Question::store('how r u?', 'ok');
 
-        Answer::storeOrUpdate('ok', AnswerStatus::Correct(), $question);
+        Answer::storeOrUpdate('ok', $question);
 
         $answer = $question->findAnswer();
 
@@ -86,5 +86,20 @@ class QuestionModelTest extends TestCase
         $answer   = $question->findAnswer();
 
         $this->assertNull($answer);
+    }
+
+    public function testGetPracticeStatus(): void
+    {
+        $question = Question::store('how r u?', 'ok');
+
+        $this->assertEquals(PracticeStatus::NotAnswered, $question->getPracticeStatus()->value);
+
+        Answer::storeOrUpdate('nok', $question);
+
+        $this->assertEquals(PracticeStatus::Incorrect, $question->getPracticeStatus()->value);
+
+        Answer::storeOrUpdate('ok', $question);
+
+        $this->assertEquals(PracticeStatus::Correct, $question->getPracticeStatus()->value);
     }
 }
