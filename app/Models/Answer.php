@@ -12,6 +12,8 @@ use Webmozart\Assert\Assert;
  * @property int    $question_id
  * @property string $answer
  * @property string $status
+ *
+ * @property-read Question $question
  */
 class Answer extends Model
 {
