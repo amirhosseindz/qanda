@@ -100,4 +100,17 @@ class AnswerModelTest extends TestCase
         $this->assertEquals('ok', $answer->answer);
         $this->assertEquals(AnswerStatus::Correct, $answer->status);
     }
+
+    public function testErase(): void
+    {
+        $q = Question::store('how r u?', 'ok');
+
+        Answer::storeOrUpdate('nok', AnswerStatus::Incorrect(), $q);
+
+        $this->assertEquals(1, $q->answers()->count());
+
+        Answer::erase();
+
+        $this->assertEquals(0, $q->answers()->count());
+    }
 }

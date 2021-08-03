@@ -66,6 +66,11 @@ class Answer extends Model
         }
     }
 
+    public static function erase(int $userId = 1): void
+    {
+        self::query()->user($userId)->delete();
+    }
+
     private static function getValidatedAnswer(string $answer): string
     {
         $answer = trim($answer);
