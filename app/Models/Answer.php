@@ -24,6 +24,11 @@ class Answer extends Model
         'status'
     ];
 
+    public function scopeUser($query, int $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+
     /**
      * @param string       $answer
      * @param AnswerStatus $status
