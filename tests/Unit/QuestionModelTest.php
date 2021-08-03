@@ -88,6 +88,18 @@ class QuestionModelTest extends TestCase
         $this->assertNull($answer);
     }
 
+    public function testFindAnswerLoadsQuestionRelation(): void
+    {
+        $q = Question::store('how r u?', 'ok');
+
+        Answer::storeOrUpdate('nok', $q);
+
+        $ans = $q->findAnswer();
+
+        $this->assertTrue($ans->relationLoaded('question'));
+        $this->assertInstanceOf(Question::class, $ans->question);
+    }
+
     public function testGetPracticeStatus(): void
     {
         $question = Question::store('how r u?', 'ok');

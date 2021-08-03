@@ -34,8 +34,11 @@ class Question extends Model
         if ($answers->count() > 1) {
             throw new \RuntimeException('Question can not has more than one answer for a single user');
         }
+        if ($answer = $answers->first()) {
+            $answer->setRelation('question', $this);
+        }
 
-        return $answers->first();
+        return $answer;
     }
 
     /**
