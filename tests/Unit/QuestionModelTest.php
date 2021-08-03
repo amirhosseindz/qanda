@@ -17,6 +17,8 @@ class QuestionModelTest extends TestCase
 
         $this->assertInstanceOf(Question::class, $question);
         $this->assertTrue($question->exists);
+        $this->assertEquals('how r u?', $question->question);
+        $this->assertEquals('ok', $question->answer);
     }
 
     public function testStoreEmptyQuestion()
