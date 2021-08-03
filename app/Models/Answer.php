@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Webmozart\Assert\Assert;
 
 /**
+ * @property int    $id
  * @property int    $user_id To consider multiple user extensibility this is the user id of whom this answer belongs to
  * @property int    $question_id
  * @property string $answer

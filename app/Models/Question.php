@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Webmozart\Assert\Assert;
 
 /**
+ * @property int    $id
  * @property string $question
  * @property string $answer
  * @property int    $created_by To consider multiple user extensibility this is the user id of who created this question
