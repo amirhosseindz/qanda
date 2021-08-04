@@ -28,16 +28,26 @@ We will display the following stats:
 Note that Git control version and Docker engine must be already installed on your system.
 
 #### 1 . Clone the project
-`git clone https://github.com/amirhosseindz/qanda.git`
-
-`cd qanda`
-#### 2. Prepare environment file
+```
+git clone https://github.com/amirhosseindz/qanda.git
+cd qanda
+```
+#### 2. Prepare the environment file
 `cp .env.example .env`
 
 Then fill the .env file with your own configuration values.
-#### 3. Build the project
+#### 3. Install the application's dependencies
+```
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v $(pwd):/opt \
+    -w /opt \
+    laravelsail/php80-composer:latest \
+    composer install --ignore-platform-reqs
+```
+#### 4. Build the project
 `./vendor/bin/sail up -d`
-#### 4. Run the database migrations
+#### 5. Run the database migrations
 `./vendor/bin/sail artisan migrate`
 ## Usage
 Simply run `./vendor/bin/sail artisan qanda:interactive`
