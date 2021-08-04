@@ -12,4 +12,14 @@ class AnswerStatus extends Enum
 {
     public const Correct = 'Correct';
     public const Incorrect = 'Incorrect';
+
+    public static function make(string $status): self
+    {
+        return new self($status);
+    }
+
+    public function isCorrect(): bool
+    {
+        return $this->value === self::Correct;
+    }
 }

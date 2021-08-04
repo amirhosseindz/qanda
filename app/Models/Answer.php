@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AnswerStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Webmozart\Assert\Assert;
@@ -34,6 +35,11 @@ class Answer extends Model
     public function scopeUser($query, int $userId)
     {
         return $query->where('user_id', $userId);
+    }
+
+    public function scopeStatus($query, AnswerStatus $status)
+    {
+        return $query->where('status', $status->value);
     }
 
     /**
@@ -86,5 +92,15 @@ class Answer extends Model
         Assert::notEmpty($answer, 'Invalid Answer');
 
         return $answer;
+    }
+
+    public function isCorrect(): bool
+    {
+        return $this->getStatus()->isCorrect();
+    }
+
+    public function getStatus(): AnswerStatus
+    {
+        return AnswerStatus::make($this->status);
     }
 }

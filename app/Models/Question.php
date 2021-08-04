@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AnswerStatus;
 use App\Enums\PracticeStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Webmozart\Assert\Assert;
@@ -13,6 +14,10 @@ use Webmozart\Assert\Assert;
  * @property string $question
  * @property string $answer
  * @property int    $created_by To consider multiple user extensibility this is the user id of who created this question
+ *
+ * @method static Builder hasAnswer(int $userId = 1)
+ * @method static Builder hasCorrectAnswer(int $userId = 1)
+ * @method static Question find(int $id, array $columns = [])
  */
 class Question extends Model
 {
@@ -27,6 +32,20 @@ class Question extends Model
     public function answers()
     {
         return $this->hasMany(Answer::class);
+    }
+
+    public function scopeHasAnswer($query, int $userId = 1)
+    {
+        return $query->whereHas('answers', function ($q) use ($userId) {
+            $q->user($userId);
+        });
+    }
+
+    public function scopeHasCorrectAnswer($query, int $userId = 1)
+    {
+        return $query->whereHas('answers', function ($q) use ($userId) {
+            $q->user($userId)->status(AnswerStatus::Correct());
+        });
     }
 
     public function findAnswer(int $userId = 1): ?Answer
