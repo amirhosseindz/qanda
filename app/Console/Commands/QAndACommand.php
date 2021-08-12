@@ -74,6 +74,17 @@ class QAndACommand extends Command
         $this->handle();
     }
 
+    private function checkIfAnyQuestionExists(): bool
+    {
+        if (! Question::query()->exists()) {
+            $this->warn('No question found');
+
+            return false;
+        }
+
+        return true;
+    }
+
     private function createQuestion(): void
     {
         try {
@@ -89,6 +100,10 @@ class QAndACommand extends Command
 
     private function deleteQuestion(): void
     {
+        if (! $this->checkIfAnyQuestionExists()) {
+            return;
+        }
+
         $this->displayList();
 
         $question = $this->pickQuestion();
@@ -133,6 +148,10 @@ class QAndACommand extends Command
 
     private function practice(): void
     {
+        if (! $this->checkIfAnyQuestionExists()) {
+            return;
+        }
+
         $this->displayProgress();
         if (! $question = $this->getQuestionToAnswer()) {
             return;
