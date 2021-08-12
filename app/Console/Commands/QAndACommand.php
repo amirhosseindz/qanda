@@ -52,8 +52,11 @@ class QAndACommand extends Command
             case Action::Create():
                 $this->createQuestion();
                 break;
+            case Action::Delete():
+                $this->deleteQuestion();
+                break;
             case Action::List():
-                $this->table(['Question', 'Correct Answer'], Question::all(['question', 'answer']));
+                $this->displayList();
                 break;
             case Action::Practice():
                 $this->practice();
@@ -82,6 +85,22 @@ class QAndACommand extends Command
             $this->error($exception->getMessage());
             $this->createQuestion();
         }
+    }
+
+    private function deleteQuestion(): void
+    {
+        $this->displayList();
+
+        $question = $this->pickQuestion();
+
+        if (! $question->deleteWithAnswers()) {
+            $this->error('Could not delete the question successfully, please try again.');
+        }
+    }
+
+    private function displayList(): void
+    {
+        $this->table(['ID', 'Question', 'Correct Answer'], Question::all(['id', 'question', 'answer']));
     }
 
     private function displayStats(): void
@@ -115,7 +134,7 @@ class QAndACommand extends Command
     private function practice(): void
     {
         $this->displayProgress();
-        if (! $question = $this->getQuestion()) {
+        if (! $question = $this->getQuestionToAnswer()) {
             return;
         }
 
@@ -128,22 +147,27 @@ class QAndACommand extends Command
         $this->practice();
     }
 
-    private function getQuestion(): ?Question
+    private function getQuestionToAnswer(): ?Question
     {
-        $id = $this->ask('Pick an ID to practice or enter "0" to exit', '0');
-        if ($id === '0') {
-            return null;
+        $question = $this->pickQuestion();
+
+        if (($oldAnswer = $question->findAnswer()) && $oldAnswer->isCorrect()) {
+            $this->warn('This question is already answered correctly');
+
+            return $this->getQuestionToAnswer();
         }
+
+        return $question;
+    }
+
+    private function pickQuestion(): Question
+    {
+        $id = $this->ask('Pick a question ID');
 
         if (! $question = Question::find($id)) {
             $this->error('Entered question ID is invalid');
 
-            return $this->getQuestion();
-        }
-        if (($oldAnswer = $question->findAnswer()) && $oldAnswer->isCorrect()) {
-            $this->warn('This question is already answered correctly');
-
-            return $this->getQuestion();
+            return $this->pickQuestion();
         }
 
         return $question;

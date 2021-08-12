@@ -98,4 +98,18 @@ class Question extends Model
     {
         return $answer === $this->answer ? AnswerStatus::Correct() : AnswerStatus::Incorrect();
     }
+
+    public function deleteWithAnswers(): bool
+    {
+        return $this->deleteAnswers() && $this->delete();
+    }
+
+    public function deleteAnswers(): bool
+    {
+        if (! $this->answers()->exists()) {
+            return true;
+        }
+
+        return $this->answers()->delete();
+    }
 }

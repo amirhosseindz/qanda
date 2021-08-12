@@ -31,13 +31,28 @@ class QAndACommandTest extends TestCase
         $this->assertEquals('ok', $question->answer);
     }
 
+    public function testHandleDelete(): void
+    {
+        $q = Question::store('how r u?', 'ok');
+
+        $this->assertEquals(1, Question::count());
+
+        $this->artisan('qanda:interactive')
+            ->expectsChoice('Please select one of the following actions', Action::Delete, Action::getValues())
+            ->expectsQuestion('Pick a question ID', $q->id)
+            ->expectsChoice('Please select one of the following actions', Action::Exit, Action::getValues())
+            ->assertExitCode(0);
+
+        $this->assertEquals(0, Question::count());
+    }
+
     public function testHandleList(): void
     {
         $q = Question::store('how r u?', 'ok');
 
         $this->artisan('qanda:interactive')
             ->expectsChoice('Please select one of the following actions', Action::List, Action::getValues())
-            ->expectsTable(['Question', 'Correct Answer'], [['how r u?', 'ok']])
+            ->expectsTable(['ID', 'Question', 'Correct Answer'], [[$q->id, 'how r u?', 'ok']])
             ->expectsChoice('Please select one of the following actions', Action::Exit, Action::getValues())
             ->assertExitCode(0);
     }
@@ -56,7 +71,7 @@ class QAndACommandTest extends TestCase
                 new TableSeparator(),
                 ['-', 'Completion :', '0%']
             ])
-            ->expectsQuestion('Pick an ID to practice or enter "0" to exit', $q->id)
+            ->expectsQuestion('Pick a question ID', $q->id)
             ->expectsQuestion('Please give an answer to this question', 'nok')
             ->expectsOutput(AnswerStatus::Incorrect)
             ->expectsChoice('Continue?', 'Yes', ['Yes', 'No'])
@@ -66,7 +81,7 @@ class QAndACommandTest extends TestCase
                 new TableSeparator(),
                 ['-', 'Completion :', '0%']
             ])
-            ->expectsQuestion('Pick an ID to practice or enter "0" to exit', $q->id)
+            ->expectsQuestion('Pick a question ID', $q->id)
             ->expectsQuestion('Please give an answer to this question', 'ok')
             ->expectsOutput(PracticeStatus::Correct)
             ->expectsChoice('Continue?', 'No', ['Yes', 'No'])

@@ -114,4 +114,29 @@ class QuestionModelTest extends TestCase
 
         $this->assertEquals(PracticeStatus::Correct, $question->getPracticeStatus()->value);
     }
+
+    public function testDeleteWithAnswers(): void
+    {
+        $q = Question::store('how r u?', 'ok');
+        Answer::storeOrUpdate('nok', $q);
+
+        $this->assertEquals(1, Question::count());
+        $this->assertEquals(1, Answer::count());
+
+        $q->deleteWithAnswers();
+
+        $this->assertEquals(0, Question::count());
+        $this->assertEquals(0, Answer::count());
+    }
+
+    public function testDeleteWithAnswersWithNoAnswer(): void
+    {
+        $q = Question::store('how r u?', 'ok');
+
+        $this->assertEquals(1, Question::count());
+
+        $q->deleteWithAnswers();
+
+        $this->assertEquals(0, Question::count());
+    }
 }

@@ -6,6 +6,7 @@ use BenSampo\Enum\Enum;
 
 /**
  * @method static static Create()
+ * @method static static Delete()
  * @method static static List()
  * @method static static Practice()
  * @method static static Stats()
@@ -15,6 +16,7 @@ use BenSampo\Enum\Enum;
 class Action extends Enum
 {
     public const Create = 'Create a question';
+    public const Delete = 'Delete a question';
     public const List = 'List all questions';
     public const Practice = 'Practice';
     public const Stats = 'Stats';
