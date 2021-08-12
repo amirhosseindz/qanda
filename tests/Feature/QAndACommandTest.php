@@ -21,6 +21,7 @@ class QAndACommandTest extends TestCase
             ->expectsChoice('Please select one of the following actions', Action::Create, Action::getValues())
             ->expectsQuestion('Give a question', 'how r u?')
             ->expectsQuestion('Give the only answer', 'ok')
+            ->expectsChoice('Please select one of the following actions', Action::Exit, Action::getValues())
             ->assertExitCode(0);
 
         $question = Question::query()->latest()->first();
@@ -37,6 +38,7 @@ class QAndACommandTest extends TestCase
         $this->artisan('qanda:interactive')
             ->expectsChoice('Please select one of the following actions', Action::List, Action::getValues())
             ->expectsTable(['Question', 'Correct Answer'], [['how r u?', 'ok']])
+            ->expectsChoice('Please select one of the following actions', Action::Exit, Action::getValues())
             ->assertExitCode(0);
     }
 
@@ -67,15 +69,8 @@ class QAndACommandTest extends TestCase
             ->expectsQuestion('Pick an ID to practice or enter "0" to exit', $q->id)
             ->expectsQuestion('Please give an answer to this question', 'ok')
             ->expectsOutput(PracticeStatus::Correct)
-            ->expectsChoice('Continue?', 'Yes', ['Yes', 'No'])
-
-            ->expectsTable(['ID', 'Question', 'Practice Status'], [
-                [$q->id, 'how r u?', PracticeStatus::Correct],
-                new TableSeparator(),
-                ['-', 'Completion :', '100%']
-            ])
-            ->expectsQuestion('Pick an ID to practice or enter "0" to exit', '0')
-
+            ->expectsChoice('Continue?', 'No', ['Yes', 'No'])
+            ->expectsChoice('Please select one of the following actions', Action::Exit, Action::getValues())
             ->assertExitCode(0);
 
         $this->assertEquals(1, Answer::query()->count());
@@ -90,6 +85,7 @@ class QAndACommandTest extends TestCase
             ->expectsOutput('- Total amount of questions : 1')
             ->expectsOutput('- Questions that have an answer : 100%')
             ->expectsOutput('- Questions that have a correct answer : 0%')
+            ->expectsChoice('Please select one of the following actions', Action::Exit, Action::getValues())
             ->assertExitCode(0);
     }
 
@@ -102,6 +98,7 @@ class QAndACommandTest extends TestCase
 
         $this->artisan('qanda:interactive')
             ->expectsChoice('Please select one of the following actions', Action::Reset, Action::getValues())
+            ->expectsChoice('Please select one of the following actions', Action::Exit, Action::getValues())
             ->assertExitCode(0);
 
         $this->assertEquals(1, Question::query()->count());

@@ -64,7 +64,11 @@ class QAndACommand extends Command
             case Action::Reset():
                 Answer::erase();
                 break;
+            case Action::Exit():
+                return;
         }
+
+        $this->handle();
     }
 
     private function createQuestion(): void
